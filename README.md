@@ -45,13 +45,23 @@ Each **batch** in the dataset contains two files:
 
 ## Quick Start
 
-### 1. Install dependencies
+### 1. 下載所有公開資料集（一行指令）
+
+```bash
+bash download_datasets.sh
+```
+
+> 這一行會自動安裝所需套件，並依序下載：
+> PASCAL VOC 2012、COCO 2017 val、Quick Draw! 素描（真實圖片）
+> + CIFAKE fake split、DiffusionDB 10K（AI 生成圖片）
+
+### 2. Install dependencies only
 
 ```bash
 pip install Pillow numpy datasets huggingface_hub tqdm
 ```
 
-### 2. (Optional) Download real datasets
+### 3. (Optional) Download real/AI datasets separately
 
 ```bash
 bash scripts/download_real_datasets.sh
