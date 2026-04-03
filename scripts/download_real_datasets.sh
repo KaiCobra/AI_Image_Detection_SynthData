@@ -3,10 +3,10 @@
 # Download REAL image datasets into data/real/
 # Run from the project root directory.
 #
-# Recommended starter combination (~25 GB, fully open-licensed):
-#   PASCAL VOC 2012  — CC BY 2.5   (22 500 photos, ~3 GB)
-#   COCO 2017 val    — CC BY 4.0   (5 000 photos,  ~1 GB)
-#   Quick Draw!      — CC BY 4.0   (10 categories × 2 000 sketches)
+# Default downloads (~2 GB, no registration needed):
+#   DIV2K        — 1 000 高畫質真實照片 (≥ 2K 解析度)
+#   COCO 2017 val — 5 000 自然場景照片 (~1 GB)
+#   Quick Draw!  — 10 類別 × 2 000 真人手繪素描
 # ============================================================
 set -euo pipefail
 
@@ -15,25 +15,48 @@ mkdir -p "$REAL_DIR"
 
 echo "=== Downloading Real Image Datasets ==="
 
-# ── 1. PASCAL VOC 2012 (~3 GB, CC BY 2.5) ───────────────────────────────────
-echo "[1/3] PASCAL VOC 2012 (22 500 natural photos)..."
-mkdir -p "$REAL_DIR/voc2012"
-if [ ! -f "$REAL_DIR/voc2012/.done" ]; then
-    wget -q --show-progress \
-        https://pjreddie.com/media/files/VOCtrainval_11-May-2012.tar \
-        -O /tmp/voc2012.tar
-    tar xf /tmp/voc2012.tar -C "$REAL_DIR/voc2012/" --strip-components=1
-    rm /tmp/voc2012.tar
-    # Flatten JPEGImages into voc2012/ for easy glob
-    find "$REAL_DIR/voc2012" -name "*.jpg" -exec cp {} "$REAL_DIR/voc2012/" \;
-    touch "$REAL_DIR/voc2012/.done"
-    echo "    PASCAL VOC 2012 done."
-else
-    echo "    PASCAL VOC 2012 already downloaded."
-fi
+# ── 1. DIV2K (HuggingFace, open access, no login) ────────────────────────────
+# 1 000 high-resolution real photos, at least one dimension ≥ 2K.
+# Diverse subjects: people, objects, nature, architecture, macro.
+# No AI involvement — original photographs.
+echo "[1/3] DIV2K — 1 000 high-resolution real photos (HuggingFace)..."
+python3 - <<'PYEOF'
+import sys
+from pathlib import Path
+
+out_dir = Path("data/real/div2k")
+done    = out_dir / ".done"
+out_dir.mkdir(parents=True, exist_ok=True)
+
+if done.exists():
+    print("    DIV2K already downloaded.")
+    sys.exit(0)
+
+try:
+    from datasets import load_dataset
+
+    print("    Loading eugenesiow/Div2k (bicubic_x2 config, train split) ...")
+    ds = load_dataset("eugenesiow/Div2k", "bicubic_x2", split="train")
+
+    saved = 0
+    for i, sample in enumerate(ds):
+        # Use the high-resolution version (hr key)
+        img = sample.get("hr") or sample.get("image")
+        if img is None:
+            continue
+        img.convert("RGB").save(out_dir / f"div2k_{i:04d}.png")
+        saved += 1
+
+    done.touch()
+    print(f"    DIV2K done: {saved} images in {out_dir}")
+
+except Exception as e:
+    print(f"    [ERROR] {e}")
+    print("    Alternative: download directly from https://data.vision.ee.ethz.ch/cvl/DIV2K/")
+PYEOF
 
 # ── 2. COCO 2017 Validation (~1 GB, CC BY 4.0) ──────────────────────────────
-echo "[2/3] COCO 2017 val (5 000 images)..."
+echo "[2/3] COCO 2017 val (5 000 natural scene images)..."
 mkdir -p "$REAL_DIR/coco"
 if [ ! -f "$REAL_DIR/coco/.done" ]; then
     wget -q --show-progress \
@@ -89,9 +112,6 @@ try:
 
 except ImportError:
     print("    [SKIP] pip install quickdraw  then re-run this script.")
-    print("    Alternatively use per-category .npy files:")
-    print("      gsutil cp gs://quickdraw_dataset/full/numpy_bitmap/cat.npy data/real/quickdraw/")
-    print("      python3 scripts/quickdraw_to_png.py --npy_dir data/real/quickdraw --out_dir data/real/quickdraw_png")
 PYEOF
 
 echo ""
@@ -99,4 +119,4 @@ echo "=== Real dataset download complete ==="
 echo "Images are in: $REAL_DIR"
 echo ""
 echo "Counts:"
-find "$REAL_DIR" -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" | wc -l
+find "$REAL_DIR" -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" 2>/dev/null | wc -l

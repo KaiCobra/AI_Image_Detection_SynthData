@@ -5,58 +5,57 @@ Dataset Sources
 ---------------
 REAL image datasets (publicly licensed, free to use):
 
-  1. PASCAL VOC 2012  — CC BY 2.5
-       http://host.robots.ox.ac.uk/pascal/VOC/voc2012/
-       22 500 natural photos, ~3 GB, no registration required
-       torchvision: VOCDetection(root="./data", year="2012", download=True)
-       Direct: wget https://pjreddie.com/media/files/VOCtrainval_11-May-2012.tar
+  1. DIV2K  — Open access, no registration
+       https://data.vision.ee.ethz.ch/cvl/DIV2K/
+       1 000 high-resolution photos (≥ 2K on one side), extremely clean and sharp
+       HuggingFace: datasets.load_dataset("eugenesiow/Div2k", "bicubic_x2", split="train")
 
   2. COCO 2017 val  — CC BY 4.0
        https://cocodataset.org/#download
        5 000 natural scene images, ~1 GB
        Direct: wget http://images.cocodataset.org/zips/val2017.zip
-       fiftyone: foz.load_zoo_dataset("coco-2017", split="validation")
 
   3. Open Images V7 (validation)  — CC BY 4.0
        https://storage.googleapis.com/openimages/web/index.html
        41 K images (validation subset only, ~1.2 GB)
        gsutil: gsutil -m rsync -r gs://open-images-dataset/validation .
-       fiftyone: foz.load_zoo_dataset("open-images-v7", split="validation", max_samples=5000)
 
   4. Google Quick, Draw!  — CC BY 4.0
        https://github.com/googlecreativelab/quickdraw-dataset
        50 M human sketches / doodles (28×28 bitmap .npy files per category)
        pip: pip install quickdraw
-       Per-category: gsutil cp gs://quickdraw_dataset/full/numpy_bitmap/cat.npy .
-       HuggingFace: datasets.load_dataset("google/quickdraw", "cat")
 
 AI-GENERATED image datasets (publicly licensed / research use):
 
-  1. CIFAKE  — CC BY 4.0
-       https://huggingface.co/datasets/dragonintelligence/CIFAKE-image-dataset
-       60 K AI-generated images (Stable Diffusion v1.4 at 32×32, upscalable)
-       No registration needed (HuggingFace mirror):
-         datasets.load_dataset("dragonintelligence/CIFAKE-image-dataset")
-         → filter label==1 for FAKE images
-       Kaggle: kaggle datasets download birdy654/cifake-real-and-ai-generated-synthetic-images
+  1. Synthbuster  — Open access, no registration  ★ 2024 新增
+       https://zenodo.org/records/10066460
+       ~9 000 張，720P–4K 高品質，手工挑選具欺騙性的圖片
+       涵蓋：DALL-E 2, DALL-E 3, Adobe Firefly, Midjourney v5,
+              Stable Diffusion 1.3 / 2 / XL, Glide
+       Direct: wget https://zenodo.org/records/10066460/files/synthbuster.zip
 
-  2. DiffusionDB  — CC BY 4.0
+  2. MS COCOAI (Defactify 2025)  — CC BY (繼承自 COCO), no registration  ★ 2025 新增
+       https://huggingface.co/datasets/Rajarshi-Roy-research/Defactify_Image_Dataset
+       96 000 張（50% 真實 COCO，50% AI），balanced
+       涵蓋：Stable Diffusion 3, SDXL, SD 2.1, DALL-E 3, Midjourney v6
+       HuggingFace: datasets.load_dataset("Rajarshi-Roy-research/Defactify_Image_Dataset")
+         → filter label != "real" for AI images only
+
+  3. DiffusionDB  — CC BY 4.0
        https://huggingface.co/datasets/poloclub/diffusiondb
        14 M Stable Diffusion images; use modular subsets (1 K – 100 K):
          datasets.load_dataset("poloclub/diffusiondb", "large_random_10k")
        Native 512×512 PNG. No registration needed.
 
-  3. ArtiFact  — Apache 2.0
+  4. ArtiFact  — Apache 2.0  (optional, large)
        https://www.kaggle.com/datasets/awsaf49/artifact-dataset
-       2.5 M images from 25 generators (13 GANs + 7 diffusion models incl.
-       SD, DALL-E, Midjourney). ~120 GB full.
+       2.5 M images from 25 generators. ~120 GB full.
        kaggle datasets download -d awsaf49/artifact-dataset
 
-  4. GenImage  — CC BY-NC-SA 4.0 (non-commercial)
+  5. GenImage  — CC BY-NC-SA 4.0 (non-commercial, optional, large)
        https://github.com/GenImage-Dataset/GenImage
-       2.68 M images from 8 generators (Midjourney, SD 1.4/1.5/XL,
-       DALL-E 2, ADM, GLIDE, Wukong). ~500 GB full.
-       python download_genimage.py  (resumable; download specific subfolders only)
+       2.68 M images from 8 generators. ~500 GB full.
+       python download_genimage.py  (resumable)
 """
 
 import os

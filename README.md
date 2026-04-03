@@ -23,23 +23,24 @@ Each **batch** in the dataset contains two files:
 
 | Dataset | License | Type | Count | Disk | Access |
 |---|---|---|---|---|---|
-| **PASCAL VOC 2012** | CC BY 2.5 | Natural photos | 22 500 | ~3 GB | `torchvision` / direct wget |
-| **COCO 2017 val** | CC BY 4.0 | Natural scene photos | 5 000 | ~1 GB | direct wget |
-| **Open Images V7** | CC BY 4.0 | Diverse photos | 41 K (val) | ~1.2 GB | `gsutil` / `fiftyone` |
-| **Quick, Draw!** | CC BY 4.0 | Human sketches/doodles | 50 M (use subsets) | per-category .npy | `pip install quickdraw` |
+| **DIV2K** | Open access | 高畫質真實照片 (≥ 2K) | 1 000 | ~1 GB | HuggingFace (no login) |
+| **COCO 2017 val** | CC BY 4.0 | 自然場景照片 | 5 000 | ~1 GB | direct wget |
+| **Open Images V7** | CC BY 4.0 | 多樣真實照片 | 41 K (val) | ~1.2 GB | `gsutil` |
+| **Quick, Draw!** | CC BY 4.0 | 真人手繪素描 | 50 M (use subsets) | per-category .npy | `pip install quickdraw` |
 
 ### AI-generated images (Set B)
 
-| Dataset | License | Generators | Count | Disk | Access |
-|---|---|---|---|---|---|
-| **CIFAKE** | CC BY 4.0 | Stable Diffusion v1.4 | 60 K fake | ~1 GB | HuggingFace (no login) |
-| **DiffusionDB** | CC BY 4.0 | Stable Diffusion | 14 M (use subsets) | 10 K ≈ few MB | HuggingFace (no login) |
-| **ArtiFact** | Apache 2.0 | 25 generators (13 GANs + 7 diffusion) | 2.5 M | ~120 GB | Kaggle |
-| **GenImage** | CC BY-NC-SA 4.0 | 8 generators (MJ, SD, DALL-E 2…) | 2.68 M | ~500 GB | download script |
+| Dataset | Year | License | Generators | Count | Disk | Access |
+|---|---|---|---|---|---|---|
+| **Synthbuster** | 2024 | Open access | DALL-E 2/3, Firefly, MJ v5, SD XL… | ~9 K | ~2 GB | Zenodo (no login) |
+| **MS COCOAI (Defactify)** | 2025 | CC BY | SD 3, SDXL, DALL-E 3, **MJ v6** | ~48 K AI | ~5 GB | HuggingFace (no login) |
+| **DiffusionDB** | 2022 | CC BY 4.0 | Stable Diffusion | 14 M (use subsets) | 10 K ≈ few MB | HuggingFace (no login) |
+| **ArtiFact** | 2023 | Apache 2.0 | 25 generators (GANs + diffusion) | 2.5 M | ~120 GB | Kaggle (optional) |
+| **GenImage** | 2023 | CC BY-NC-SA 4.0 | MJ, SD, DALL-E 2… | 2.68 M | ~500 GB | download script (optional) |
 
-> **Recommended starter** (no registration, <5 GB, fully open-licensed):
-> real = PASCAL VOC 2012 + COCO val + Quick Draw sketches;
-> AI = CIFAKE fake split + DiffusionDB `large_random_10k`
+> **Recommended starter** (no registration, < 8 GB, modern generators):
+> real = DIV2K + COCO val + Quick Draw;
+> AI = **Synthbuster** (DALL-E 3 / Firefly / MJ v5) + **MS COCOAI** (SD 3 / MJ v6) + DiffusionDB 10K
 
 ---
 
@@ -52,31 +53,21 @@ bash download_datasets.sh
 ```
 
 > 這一行會自動安裝所需套件，並依序下載：
-> PASCAL VOC 2012、COCO 2017 val、Quick Draw! 素描（真實圖片）
-> + CIFAKE fake split、DiffusionDB 10K（AI 生成圖片）
+> DIV2K、COCO 2017 val、Quick Draw! 素描（真實圖片）
+> + Synthbuster、MS COCOAI、DiffusionDB 10K（AI 生成圖片）
 
 ### 2. Install dependencies only
 
 ```bash
-pip install Pillow numpy datasets huggingface_hub tqdm
+pip install Pillow numpy datasets huggingface_hub tqdm quickdraw
 ```
 
 ### 3. (Optional) Download real/AI datasets separately
 
 ```bash
-bash scripts/download_real_datasets.sh
+bash scripts/download_real_datasets.sh   # DIV2K + COCO val + Quick Draw
+bash scripts/download_ai_datasets.sh     # Synthbuster + MS COCOAI + DiffusionDB
 ```
-
-This populates `data/real/` with COCO val images, Quick Draw PNGs, and
-Open Images samples.
-
-### 3. (Optional) Download AI-generated datasets
-
-```bash
-bash scripts/download_ai_datasets.sh
-```
-
-This populates `data/ai/` with CIFAKE FAKE images and ArtiFact samples.
 
 > **Without downloaded data** the pipeline falls back to procedurally generated
 > images (noise-based nature textures / sketch-like drawings for real;
