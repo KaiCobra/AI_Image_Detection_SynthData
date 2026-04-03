@@ -1,0 +1,20 @@
+{
+  "ai_is_base": true,
+  "ai_bbox": [
+    0,
+    0,
+    511,
+    511
+  ],
+  "alpha": 0.7449,
+  "patch_xy": [
+    221,
+    203
+  ],
+  "patch_size": [
+    262,
+    262
+  ],
+  "real_source": "synthetic_photo",
+  "ai_source": "synthetic__make_mandala"
+}

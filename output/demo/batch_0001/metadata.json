@@ -1,0 +1,20 @@
+{
+  "ai_is_base": false,
+  "ai_bbox": [
+    146,
+    170,
+    414,
+    438
+  ],
+  "alpha": 0.6088,
+  "patch_xy": [
+    146,
+    170
+  ],
+  "patch_size": [
+    269,
+    269
+  ],
+  "real_source": "synthetic_photo",
+  "ai_source": "synthetic__make_dreamscape"
+}

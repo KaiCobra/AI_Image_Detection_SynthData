@@ -1,0 +1,20 @@
+{
+  "ai_is_base": true,
+  "ai_bbox": [
+    0,
+    0,
+    511,
+    511
+  ],
+  "alpha": 0.8259,
+  "patch_xy": [
+    286,
+    314
+  ],
+  "patch_size": [
+    182,
+    182
+  ],
+  "real_source": "synthetic_sketch",
+  "ai_source": "synthetic__make_portrait_like"
+}
