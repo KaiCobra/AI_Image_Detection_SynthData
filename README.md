@@ -21,19 +21,25 @@ Each **batch** in the dataset contains two files:
 
 ### Real images (Set A)
 
-| Dataset | License | Type | Size | Download |
-|---|---|---|---|---|
-| **COCO 2017** | CC BY 4.0 | Natural photos | ~118 K (val: 5 K) | `scripts/download_real_datasets.sh` |
-| **Open Images V7** | CC BY 4.0 | Natural photos | 9 M (val subset) | `scripts/download_real_datasets.sh` |
-| **Quick, Draw!** | CC BY 4.0 | Human sketches/doodles | 50 M (5 categories) | `scripts/download_real_datasets.sh` |
+| Dataset | License | Type | Count | Disk | Access |
+|---|---|---|---|---|---|
+| **PASCAL VOC 2012** | CC BY 2.5 | Natural photos | 22 500 | ~3 GB | `torchvision` / direct wget |
+| **COCO 2017 val** | CC BY 4.0 | Natural scene photos | 5 000 | ~1 GB | direct wget |
+| **Open Images V7** | CC BY 4.0 | Diverse photos | 41 K (val) | ~1.2 GB | `gsutil` / `fiftyone` |
+| **Quick, Draw!** | CC BY 4.0 | Human sketches/doodles | 50 M (use subsets) | per-category .npy | `pip install quickdraw` |
 
 ### AI-generated images (Set B)
 
-| Dataset | License | Generators | Size | Download |
-|---|---|---|---|---|
-| **CIFAKE** | Research use | DDPM (CIFAR-10 counterpart) | 60 K | `scripts/download_ai_datasets.sh` |
-| **ArtiFact** | CC BY 4.0 | 27 generators (SD, DALL-E, Midjourney, GANs…) | 2.5 M | `scripts/download_ai_datasets.sh` |
-| **GenImage** | Research use | Midjourney, SD 1.4/1.5, DALL-E 2, Wukong, VQDM, Glide, ADM | 1.3 M | See repo: [GenImage-Dataset/GenImage](https://github.com/GenImage-Dataset/GenImage) |
+| Dataset | License | Generators | Count | Disk | Access |
+|---|---|---|---|---|---|
+| **CIFAKE** | CC BY 4.0 | Stable Diffusion v1.4 | 60 K fake | ~1 GB | HuggingFace (no login) |
+| **DiffusionDB** | CC BY 4.0 | Stable Diffusion | 14 M (use subsets) | 10 K ≈ few MB | HuggingFace (no login) |
+| **ArtiFact** | Apache 2.0 | 25 generators (13 GANs + 7 diffusion) | 2.5 M | ~120 GB | Kaggle |
+| **GenImage** | CC BY-NC-SA 4.0 | 8 generators (MJ, SD, DALL-E 2…) | 2.68 M | ~500 GB | download script |
+
+> **Recommended starter** (no registration, <5 GB, fully open-licensed):
+> real = PASCAL VOC 2012 + COCO val + Quick Draw sketches;
+> AI = CIFAKE fake split + DiffusionDB `large_random_10k`
 
 ---
 

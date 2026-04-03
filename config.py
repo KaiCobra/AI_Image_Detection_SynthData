@@ -4,37 +4,59 @@ Configuration for AI Image Detection Synthetic Dataset Pipeline.
 Dataset Sources
 ---------------
 REAL image datasets (publicly licensed, free to use):
-  1. COCO 2017  — CC BY 4.0
+
+  1. PASCAL VOC 2012  — CC BY 2.5
+       http://host.robots.ox.ac.uk/pascal/VOC/voc2012/
+       22 500 natural photos, ~3 GB, no registration required
+       torchvision: VOCDetection(root="./data", year="2012", download=True)
+       Direct: wget https://pjreddie.com/media/files/VOCtrainval_11-May-2012.tar
+
+  2. COCO 2017 val  — CC BY 4.0
        https://cocodataset.org/#download
-       ~118 K training images, diverse everyday scenes
-       Download: wget http://images.cocodataset.org/zips/val2017.zip
+       5 000 natural scene images, ~1 GB
+       Direct: wget http://images.cocodataset.org/zips/val2017.zip
+       fiftyone: foz.load_zoo_dataset("coco-2017", split="validation")
 
-  2. Open Images Dataset V7  — CC BY 4.0
+  3. Open Images V7 (validation)  — CC BY 4.0
        https://storage.googleapis.com/openimages/web/index.html
-       9 M images; pip install openimages  →  openimages download
-       or: aws s3 --no-sign-request sync s3://open-images-dataset/validation .
+       41 K images (validation subset only, ~1.2 GB)
+       gsutil: gsutil -m rsync -r gs://open-images-dataset/validation .
+       fiftyone: foz.load_zoo_dataset("open-images-v7", split="validation", max_samples=5000)
 
-  3. Google Quick, Draw!  — CC BY 4.0
+  4. Google Quick, Draw!  — CC BY 4.0
        https://github.com/googlecreativelab/quickdraw-dataset
-       50 M human sketches / doodles (PNG bitmaps available)
-       Download: https://console.cloud.google.com/storage/browser/quickdraw_dataset
+       50 M human sketches / doodles (28×28 bitmap .npy files per category)
+       pip: pip install quickdraw
+       Per-category: gsutil cp gs://quickdraw_dataset/full/numpy_bitmap/cat.npy .
+       HuggingFace: datasets.load_dataset("google/quickdraw", "cat")
 
 AI-GENERATED image datasets (publicly licensed / research use):
-  1. CIFAKE  — CC0 / Research use
-       https://www.kaggle.com/datasets/birdy654/cifake-real-and-ai-generated-synthetic-images
-       60 K AI-generated images (CIFAR-10 size, 32×32 upscalable)
+
+  1. CIFAKE  — CC BY 4.0
+       https://huggingface.co/datasets/dragonintelligence/CIFAKE-image-dataset
+       60 K AI-generated images (Stable Diffusion v1.4 at 32×32, upscalable)
+       No registration needed (HuggingFace mirror):
+         datasets.load_dataset("dragonintelligence/CIFAKE-image-dataset")
+         → filter label==1 for FAKE images
        Kaggle: kaggle datasets download birdy654/cifake-real-and-ai-generated-synthetic-images
-       HuggingFace: datasets.load_dataset("jlbaker61/CIFAKE")  (split="FAKE")
 
-  2. ArtiFact  — CC BY 4.0
-       https://huggingface.co/datasets/awsaf49/artifact
-       ~2.5 M images from 27 AI generators (SD, DALL-E, Midjourney, GAN…)
-       HuggingFace: datasets.load_dataset("awsaf49/artifact", streaming=True)
+  2. DiffusionDB  — CC BY 4.0
+       https://huggingface.co/datasets/poloclub/diffusiondb
+       14 M Stable Diffusion images; use modular subsets (1 K – 100 K):
+         datasets.load_dataset("poloclub/diffusiondb", "large_random_10k")
+       Native 512×512 PNG. No registration needed.
 
-  3. GenImage  — Research use
+  3. ArtiFact  — Apache 2.0
+       https://www.kaggle.com/datasets/awsaf49/artifact-dataset
+       2.5 M images from 25 generators (13 GANs + 7 diffusion models incl.
+       SD, DALL-E, Midjourney). ~120 GB full.
+       kaggle datasets download -d awsaf49/artifact-dataset
+
+  4. GenImage  — CC BY-NC-SA 4.0 (non-commercial)
        https://github.com/GenImage-Dataset/GenImage
-       1.3 M images from 8 generators (Midjourney, SD, DALL-E 2, etc.)
-       Download via paper instructions or direct Google Drive links in the repo.
+       2.68 M images from 8 generators (Midjourney, SD 1.4/1.5/XL,
+       DALL-E 2, ADM, GLIDE, Wukong). ~500 GB full.
+       python download_genimage.py  (resumable; download specific subfolders only)
 """
 
 import os
