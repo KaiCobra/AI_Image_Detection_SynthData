@@ -1,0 +1,12 @@
+{
+  "sample_id": "KAI_012",
+  "editor": "Kai",
+  "edit_family": "AI_Real_synth",
+  "pie_type": null,
+  "ai_image_description": "photo of one tree with leaves, in the style of swiss style, charming, idyllic rural scenes, 32k uhd, cross processing, terraced cityscapes, site-specific works, mountainous vistas",
+  "real_image_dataset": "movie_poster",
+  "ai_image_dataset": "midjourney-v5",
+  "blended_words": [],
+  "tool_name": "AI_detection_synthData",
+  "resolution": "512x512"
+}

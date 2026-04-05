@@ -1,0 +1,12 @@
+{
+  "sample_id": "KAI_013",
+  "editor": "Kai",
+  "edit_family": "AI_Real_synth",
+  "pie_type": null,
+  "ai_image_description": "a group of seaguls stand on a wooden jetty, in the style of urban interventions, bentwood, shiny eyes, naturalistic poses, havencore, pensive poses, raw, confrontational figures, shiny eyes, associated press photo, white and beige, lively group compositions, tumblewave,  majestic ports, unconventional poses, die brücke, american urban life, telephoto lens, bentwood, photo taken with nikon d750",
+  "real_image_dataset": "coco",
+  "ai_image_dataset": "stable-diffusion-xl",
+  "blended_words": [],
+  "tool_name": "AI_detection_synthData",
+  "resolution": "512x512"
+}

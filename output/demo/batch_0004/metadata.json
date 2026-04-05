@@ -1,20 +1,28 @@
 {
-  "ai_is_base": true,
+  "mode": "fullimage_overlay",
+  "ai_source": "synthbuster/dalle3",
+  "ai_filename": "r0d89edd8t",
+  "ai_caption": "a group of seaguls stand on a wooden jetty, in the style of urban interventions, bentwood, shiny eyes, naturalistic poses, havencore, pensive poses, raw, confrontational figures, shiny eyes, associated press photo, white and beige, lively group compositions, tumblewave,  majestic ports, unconventional poses, die br\u00fccke, american urban life, telephoto lens, bentwood, photo taken with nikon d750",
+  "ai_object": "seaguls",
+  "sam3_score": null,
+  "sam3_bbox": null,
+  "real_source": "disk",
+  "overlay_position": [
+    176,
+    309
+  ],
+  "overlay_size": [
+    168,
+    168
+  ],
   "ai_bbox": [
-    0,
-    0,
-    511,
-    511
+    176,
+    309,
+    344,
+    477
   ],
-  "alpha": 0.7449,
-  "patch_xy": [
-    221,
-    203
-  ],
-  "patch_size": [
-    262,
-    262
-  ],
-  "real_source": "synthetic_photo",
-  "ai_source": "synthetic__make_mandala"
+  "canvas_size": [
+    512,
+    512
+  ]
 }

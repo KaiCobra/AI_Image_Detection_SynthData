@@ -1,0 +1,12 @@
+{
+  "sample_id": "KAI_002",
+  "editor": "Kai",
+  "edit_family": "AI_Real_synth",
+  "pie_type": null,
+  "ai_image_description": "a large group of people walking past a large building, in the style of madonna and child, depth of field, marble, wimmelbilder, sanctuary, candid shots, streaked",
+  "real_image_dataset": "coco",
+  "ai_image_dataset": "glide",
+  "blended_words": [],
+  "tool_name": "AI_detection_synthData",
+  "resolution": "512x512"
+}

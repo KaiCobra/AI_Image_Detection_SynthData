@@ -1,0 +1,12 @@
+{
+  "sample_id": "KAI_017",
+  "editor": "Kai",
+  "edit_family": "AI_Real_synth",
+  "pie_type": null,
+  "ai_image_description": "a wooden table with alchemy/herborism items on it, in the style of anthropological, distillation of forms, historically accurate, material experimentation, villagecore, red and brown, nostalgic rural life depictions",
+  "real_image_dataset": "movie_poster",
+  "ai_image_dataset": "glide",
+  "blended_words": [],
+  "tool_name": "AI_detection_synthData",
+  "resolution": "512x512"
+}

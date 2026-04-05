@@ -1,20 +1,33 @@
 {
-  "ai_is_base": false,
+  "mode": "sam3_cutout",
+  "ai_source": "synthbuster/stable-diffusion-1-4",
+  "ai_filename": "r0b6e4254t",
+  "ai_caption": "this statue portrays a man on a horse surrounded by trees, in the style of noble figures, dark green and orange, fujifilm velvia, germanic art",
+  "ai_object": "statue",
+  "sam3_score": 0.8555,
+  "sam3_bbox": [
+    103.34150695800781,
+    108.70274353027344,
+    386.1759033203125,
+    494.23394775390625
+  ],
+  "real_source": "disk",
+  "overlay_position": [
+    0,
+    0
+  ],
+  "overlay_size": [
+    512,
+    512
+  ],
   "ai_bbox": [
-    146,
-    170,
-    414,
-    438
+    105,
+    141,
+    384,
+    491
   ],
-  "alpha": 0.6088,
-  "patch_xy": [
-    146,
-    170
-  ],
-  "patch_size": [
-    269,
-    269
-  ],
-  "real_source": "synthetic_photo",
-  "ai_source": "synthetic__make_dreamscape"
+  "canvas_size": [
+    512,
+    512
+  ]
 }

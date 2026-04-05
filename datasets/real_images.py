@@ -15,7 +15,6 @@ will pick them up automatically.
 from __future__ import annotations
 
 import math
-import os
 import random
 from pathlib import Path
 from typing import Iterator
@@ -28,9 +27,27 @@ from config import REAL_DIR, OUTPUT_SIZE
 
 # ── Disk loader ──────────────────────────────────────────────────────────────
 
+_IGNORED_DIR_NAMES = {
+    "gt", "gts", "mask", "masks", "label", "labels",
+    "annotation", "annotations", "quickdraw_png",
+}
+
 def _collect_paths(directory: Path) -> list[Path]:
     exts = {".jpg", ".jpeg", ".png", ".webp", ".bmp"}
-    return [p for p in directory.rglob("*") if p.suffix.lower() in exts]
+    return [
+        p for p in directory.rglob("*")
+        if p.is_file()
+        and p.suffix.lower() in exts
+        and not any(part.lower() in _IGNORED_DIR_NAMES for part in p.parts)
+    ]
+
+
+def _resize_to_canvas(img: Image.Image, size: tuple[int, int]) -> Image.Image:
+    """Scale-to-fill then center-crop to `size`. No padding."""
+    from PIL import ImageOps
+    if img.size[0] == 0 or img.size[1] == 0:
+        return Image.new("RGB", size, (0, 0, 0))
+    return ImageOps.fit(img, size, Image.LANCZOS)
 
 
 def load_real_image_from_disk(rng: random.Random) -> Image.Image | None:
@@ -40,8 +57,32 @@ def load_real_image_from_disk(rng: random.Random) -> Image.Image | None:
         return None
     path = rng.choice(paths)
     img = Image.open(path).convert("RGB")
-    img = img.resize(OUTPUT_SIZE, Image.LANCZOS)
+    img = _resize_to_canvas(img, OUTPUT_SIZE)
     return img
+
+
+def load_real_image_with_meta(rng: random.Random) -> tuple[Image.Image, str, Path | None] | None:
+    """
+    Return (resized_image, dataset_name, original_path) from REAL_DIR.
+    dataset_name is the subdirectory name directly under REAL_DIR (e.g. 'coco', 'div2k').
+    original_path is the raw file path before resizing (for copying as source.png).
+    Returns None if REAL_DIR is empty.
+    """
+    paths = _collect_paths(REAL_DIR)
+    if not paths:
+        return None
+    path = rng.choice(paths)
+    img = Image.open(path).convert("RGB")
+    resized = _resize_to_canvas(img, OUTPUT_SIZE)
+
+    # Derive dataset name: first component of path relative to REAL_DIR
+    try:
+        rel = path.relative_to(REAL_DIR)
+        dataset_name = rel.parts[0] if rel.parts else "unknown"
+    except ValueError:
+        dataset_name = "unknown"
+
+    return resized, dataset_name, path
 
 
 # ── Procedural photo-like generator ─────────────────────────────────────────

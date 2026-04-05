@@ -1,20 +1,33 @@
 {
-  "ai_is_base": false,
+  "mode": "sam3_cutout",
+  "ai_source": "synthbuster/glide",
+  "ai_filename": "r0b59fc2bt",
+  "ai_caption": "wooden window on a rustic stone wall, in the style of detailed drapery, xmaspunk, reflections and mirroring, swiss style, primitive figurines, cabincore",
+  "ai_object": "window",
+  "sam3_score": 0.7773,
+  "sam3_bbox": [
+    42.80615234375,
+    -0.7415771484375,
+    207.05685424804688,
+    207.59217834472656
+  ],
+  "real_source": "disk",
+  "overlay_position": [
+    0,
+    0
+  ],
+  "overlay_size": [
+    512,
+    512
+  ],
   "ai_bbox": [
-    270,
-    310,
-    447,
-    487
+    81,
+    0,
+    418,
+    418
   ],
-  "alpha": 0.7193,
-  "patch_xy": [
-    270,
-    310
-  ],
-  "patch_size": [
-    178,
-    178
-  ],
-  "real_source": "synthetic_sketch",
-  "ai_source": "synthetic__make_portrait_like"
+  "canvas_size": [
+    512,
+    512
+  ]
 }

@@ -1,20 +1,28 @@
 {
-  "ai_is_base": true,
+  "mode": "fullimage_overlay",
+  "ai_source": "synthbuster/glide",
+  "ai_filename": "r0c9910e4t",
+  "ai_caption": "this statue was created as a gift for a steward,, in the style of made of insects, realistic blue skies, dark green, thin steel forms, macro perspectives, elongated figures",
+  "ai_object": "statue",
+  "sam3_score": null,
+  "sam3_bbox": null,
+  "real_source": "disk",
+  "overlay_position": [
+    3,
+    81
+  ],
+  "overlay_size": [
+    244,
+    244
+  ],
   "ai_bbox": [
-    0,
-    0,
-    511,
-    511
+    3,
+    81,
+    247,
+    325
   ],
-  "alpha": 0.6431,
-  "patch_xy": [
-    206,
-    62
-  ],
-  "patch_size": [
-    184,
-    184
-  ],
-  "real_source": "synthetic_sketch",
-  "ai_source": "synthetic__make_portrait_like"
+  "canvas_size": [
+    512,
+    512
+  ]
 }

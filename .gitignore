@@ -4,3 +4,6 @@ __pycache__/
 data/
 .done
 *.npy
+qwen3_server/
+sam3/
+sam3_server/

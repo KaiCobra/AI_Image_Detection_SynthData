@@ -1,23 +1,15 @@
 """
-AI-generated image provider.
+AI-generated image provider — Synthbuster dataset with prompts.csv.
 
-Priority order
---------------
-1. Load from DATA_DIR/ai/ (user has placed downloaded AI-generated images there).
-2. Fall back to procedural generation of images that mimic common visual
-   artefacts seen in AI-generated content:
-     • Unnaturally smooth gradients / dreamlike colour washes
-     • Perfect radial symmetry / mandala-like patterns
-     • Over-saturated, hyper-sharp textures (GAN sharpness artefacts)
-     • Dreamlike blended landscapes with soft, uniform lighting
-     • Synthetic portrait-like ovals with smooth skin-tone gradients
+Reads prompts.csv to get (filename, caption) pairs, then loads the
+corresponding AI image from a randomly chosen generator subdirectory.
 
-This module is dataset-agnostic: drop JPEG/PNG files from CIFAKE (split=FAKE),
-ArtiFact, or GenImage into data/ai/ and the loader picks them up automatically.
+Fallback: procedural generation if no dataset is available.
 """
 
 from __future__ import annotations
 
+import csv
 import math
 import random
 from pathlib import Path
@@ -29,11 +21,154 @@ from PIL import Image, ImageDraw, ImageFilter, ImageEnhance
 from config import AI_DIR, OUTPUT_SIZE
 
 
-# ── Disk loader ──────────────────────────────────────────────────────────────
+# ── Synthbuster loader ──────────────────────────────────────────────────────
+
+SYNTHBUSTER_ROOT = AI_DIR / "synthbuster" / "synthbuster"
+PROMPTS_CSV = SYNTHBUSTER_ROOT / "prompts.csv"
+
+GENERATORS = [
+    "dalle2", "dalle3", "firefly", "glide", "midjourney-v5",
+    "stable-diffusion-1-3", "stable-diffusion-1-4",
+    "stable-diffusion-2", "stable-diffusion-xl",
+]
+
+_prompt_rows: list[dict] | None = None
+
+
+def _load_prompts() -> list[dict]:
+    """Load prompts.csv once, return list of {filename, caption} dicts."""
+    global _prompt_rows
+    if _prompt_rows is not None:
+        return _prompt_rows
+
+    if not PROMPTS_CSV.exists():
+        _prompt_rows = []
+        return _prompt_rows
+
+    rows = []
+    with open(PROMPTS_CSV, newline="", encoding="utf-8") as f:
+        reader = csv.reader(f)
+        header = next(reader)  # skip header
+        for row in reader:
+            if len(row) < 2:
+                continue
+            rows.append({
+                "filename": row[0].strip(),
+                "caption": row[1].strip(),
+            })
+    _prompt_rows = rows
+    return _prompt_rows
+
+
+def get_synthbuster_image(
+    rng: random.Random,
+) -> tuple[Image.Image, str, str, str] | None:
+    """
+    Pick a random (image, generator, filename, caption) from Synthbuster.
+
+    Returns None if prompts.csv is missing or dataset not downloaded.
+    """
+    rows = _load_prompts()
+    if not rows:
+        return None
+
+    row = rng.choice(rows)
+    filename = row["filename"]
+    caption = row["caption"]
+
+    # Pick a random generator
+    available = [g for g in GENERATORS if (SYNTHBUSTER_ROOT / g / f"{filename}.png").exists()]
+    if not available:
+        return None
+
+    generator = rng.choice(available)
+    image_path = SYNTHBUSTER_ROOT / generator / f"{filename}.png"
+    img = Image.open(image_path).convert("RGB")
+
+    source_tag = f"synthbuster/{generator}"
+    return img, source_tag, filename, caption
+
+
+def get_synthbuster_image_by_index(
+    index: int,
+    rng: random.Random,
+) -> tuple[Image.Image, str, str, str] | None:
+    """
+    Get the i-th row from prompts.csv (wraps around if index > len).
+
+    Returns (image, source_tag, filename, caption) or None.
+    """
+    rows = _load_prompts()
+    if not rows:
+        return None
+
+    row = rows[index % len(rows)]
+    filename = row["filename"]
+    caption = row["caption"]
+
+    available = [g for g in GENERATORS if (SYNTHBUSTER_ROOT / g / f"{filename}.png").exists()]
+    if not available:
+        return None
+
+    generator = rng.choice(available)
+    image_path = SYNTHBUSTER_ROOT / generator / f"{filename}.png"
+    img = Image.open(image_path).convert("RGB")
+
+    source_tag = f"synthbuster/{generator}"
+    return img, source_tag, filename, caption
+
+
+def get_synthbuster_image_path_by_index(
+    index: int,
+    rng: random.Random,
+) -> tuple[Path, str, str, str] | None:
+    """
+    Same as get_synthbuster_image_by_index but returns the file path
+    instead of loading the image. Useful for passing to SAM3 server.
+    """
+    rows = _load_prompts()
+    if not rows:
+        return None
+
+    row = rows[index % len(rows)]
+    filename = row["filename"]
+    caption = row["caption"]
+
+    available = [g for g in GENERATORS if (SYNTHBUSTER_ROOT / g / f"{filename}.png").exists()]
+    if not available:
+        return None
+
+    generator = rng.choice(available)
+    image_path = SYNTHBUSTER_ROOT / generator / f"{filename}.png"
+    source_tag = f"synthbuster/{generator}"
+    return image_path, source_tag, filename, caption
+
+
+def synthbuster_count() -> int:
+    """Number of rows in prompts.csv."""
+    return len(_load_prompts())
+
+
+# ── Disk loader (legacy fallback) ───────────────────────────────────────────
+
+_IGNORED_DIR_NAMES = {"gt", "gts", "mask", "masks", "label", "labels", "annotation", "annotations"}
 
 def _collect_paths(directory: Path) -> list[Path]:
     exts = {".jpg", ".jpeg", ".png", ".webp", ".bmp"}
-    return [p for p in directory.rglob("*") if p.suffix.lower() in exts]
+    return [
+        p for p in directory.rglob("*")
+        if p.is_file()
+        and p.suffix.lower() in exts
+        and not any(part.lower() in _IGNORED_DIR_NAMES for part in p.parts)
+    ]
+
+
+def _resize_to_canvas(img: Image.Image, size: tuple[int, int]) -> Image.Image:
+    """Scale-to-fill then center-crop to `size`. No padding."""
+    from PIL import ImageOps
+    if img.size[0] == 0 or img.size[1] == 0:
+        return Image.new("RGB", size, (0, 0, 0))
+    return ImageOps.fit(img, size, Image.LANCZOS)
 
 
 def load_ai_image_from_disk(rng: random.Random) -> Image.Image | None:
@@ -42,27 +177,23 @@ def load_ai_image_from_disk(rng: random.Random) -> Image.Image | None:
         return None
     path = rng.choice(paths)
     img = Image.open(path).convert("RGB")
-    img = img.resize(OUTPUT_SIZE, Image.LANCZOS)
+    img = _resize_to_canvas(img, OUTPUT_SIZE)
     return img
 
 
 # ── Procedural AI-artefact generator ─────────────────────────────────────────
 
 _AI_PALETTES = [
-    # (color_a, color_b, color_c)  — dreamlike gradient trios
-    ((255, 100, 150), (100, 80, 220), (50, 200, 255)),   # neon dream
-    ((255, 180, 50),  (220, 50, 100), (80, 30, 180)),    # sunset surreal
-    ((0, 200, 180),   (0, 80, 220),   (180, 0, 255)),    # teal-violet
-    ((255, 220, 200), (200, 150, 100),(120, 80, 60)),     # warm portrait
-    ((150, 220, 255), (80, 160, 200), (40, 80, 160)),    # overcast digital
-    ((200, 255, 200), (80, 200, 120), (20, 120, 80)),    # hyper-nature
+    ((255, 100, 150), (100, 80, 220), (50, 200, 255)),
+    ((255, 180, 50),  (220, 50, 100), (80, 30, 180)),
+    ((0, 200, 180),   (0, 80, 220),   (180, 0, 255)),
+    ((255, 220, 200), (200, 150, 100),(120, 80, 60)),
+    ((150, 220, 255), (80, 160, 200), (40, 80, 160)),
+    ((200, 255, 200), (80, 200, 120), (20, 120, 80)),
 ]
 
 
-def _radial_gradient(size: tuple[int, int],
-                     center: tuple[float, float],
-                     col_a: tuple[int, int, int],
-                     col_b: tuple[int, int, int]) -> np.ndarray:
+def _radial_gradient(size, center, col_a, col_b):
     w, h = size
     cx, cy = center[0] * w, center[1] * h
     ys, xs = np.mgrid[0:h, 0:w]
@@ -74,39 +205,33 @@ def _radial_gradient(size: tuple[int, int],
     return arr
 
 
-def _make_smooth_gradient(size: tuple[int, int], rng: random.Random) -> Image.Image:
-    """Unnaturally smooth colour gradient — hallmark of AI diffusion outputs."""
+def _make_smooth_gradient(size, rng):
     w, h = size
     col_a, col_b, col_c = rng.choice(_AI_PALETTES)
     cx, cy = rng.uniform(0.2, 0.8), rng.uniform(0.2, 0.8)
-
     arr1 = _radial_gradient(size, (cx, cy), col_a, col_b)
     arr2 = _radial_gradient(size, (1 - cx, 1 - cy), col_b, col_c)
     mix = rng.uniform(0.3, 0.7)
     arr = (arr1 * mix + arr2 * (1 - mix)).astype(np.uint8)
-
     img = Image.fromarray(arr, "RGB")
     img = img.filter(ImageFilter.GaussianBlur(radius=rng.uniform(2, 5)))
     img = ImageEnhance.Color(img).enhance(rng.uniform(1.5, 2.5))
     return img
 
 
-def _make_mandala(size: tuple[int, int], rng: random.Random) -> Image.Image:
-    """Radially symmetric pattern — AI often produces perfect symmetry."""
+def _make_mandala(size, rng):
     w, h = size
     col_a, col_b, col_c = rng.choice(_AI_PALETTES)
     bg = Image.new("RGB", (w, h), col_b)
     draw = ImageDraw.Draw(bg)
     cx, cy = w // 2, h // 2
     n_rings = rng.randint(4, 10)
-    n_arms  = rng.randint(6, 16)
-
+    n_arms = rng.randint(6, 16)
     for ring in range(n_rings, 0, -1):
         r = int(min(w, h) * ring / (2 * n_rings))
         t = ring / n_rings
         col = tuple(int(col_a[c] * t + col_c[c] * (1 - t)) for c in range(3))
         draw.ellipse([cx - r, cy - r, cx + r, cy + r], outline=col, width=2)
-
     for arm in range(n_arms):
         angle = 2 * math.pi * arm / n_arms
         for seg in range(1, 8):
@@ -119,30 +244,22 @@ def _make_mandala(size: tuple[int, int], rng: random.Random) -> Image.Image:
             t = seg / 8
             col = tuple(int(col_a[c] * t + col_b[c] * (1 - t)) for c in range(3))
             draw.line([x0, y0, x1, y1], fill=col, width=rng.randint(1, 4))
-
     bg = bg.filter(ImageFilter.GaussianBlur(radius=rng.uniform(0.5, 2.0)))
     bg = ImageEnhance.Color(bg).enhance(rng.uniform(1.3, 2.0))
     return bg
 
 
-def _make_dreamscape(size: tuple[int, int], rng: random.Random) -> Image.Image:
-    """Blend of soft shapes — mimics AI landscape / abstract art outputs."""
+def _make_dreamscape(size, rng):
     w, h = size
     col_a, col_b, col_c = rng.choice(_AI_PALETTES)
     img = Image.new("RGB", (w, h), col_a)
     draw = ImageDraw.Draw(img)
-
-    # Sky band
     sky_h = int(h * rng.uniform(0.3, 0.6))
     draw.rectangle([0, 0, w, sky_h], fill=col_b)
-
-    # Oversaturated soft sun/moon disc
     sun_r = rng.randint(30, 80)
     sx = rng.randint(sun_r, w - sun_r)
     sy = rng.randint(sun_r, sky_h)
     draw.ellipse([sx - sun_r, sy - sun_r, sx + sun_r, sy + sun_r], fill=col_c)
-
-    # Silhouette of landscape (perfectly smooth horizon)
     horizon_pts = []
     prev_y = sky_h
     for x in range(0, w + 10, 10):
@@ -151,46 +268,39 @@ def _make_dreamscape(size: tuple[int, int], rng: random.Random) -> Image.Image:
         horizon_pts.append((x, prev_y))
     horizon_pts += [(w, h), (0, h)]
     draw.polygon(horizon_pts, fill=col_a)
-
     img = img.filter(ImageFilter.GaussianBlur(radius=rng.uniform(3, 8)))
     img = ImageEnhance.Color(img).enhance(rng.uniform(1.4, 2.2))
     img = ImageEnhance.Brightness(img).enhance(rng.uniform(1.05, 1.25))
     return img
 
 
-def _make_portrait_like(size: tuple[int, int], rng: random.Random) -> Image.Image:
-    """Oval face-like gradient — mimics GAN/diffusion portrait artefacts."""
+def _make_portrait_like(size, rng):
     w, h = size
     col_a, col_b, _ = rng.choice([
-        ((240, 200, 170), (180, 140, 110), (100, 80, 60)),  # skin tones
-        ((200, 180, 220), (140, 120, 180), (80, 60, 120)),  # violet fantasy
+        ((240, 200, 170), (180, 140, 110), (100, 80, 60)),
+        ((200, 180, 220), (140, 120, 180), (80, 60, 120)),
     ])
     bg_col = (col_b[0] // 2, col_b[1] // 2, col_b[2] // 2)
     img = Image.new("RGB", (w, h), bg_col)
     draw = ImageDraw.Draw(img)
-
-    # Face oval — unnaturally perfect
     face_w = int(w * rng.uniform(0.35, 0.55))
     face_h = int(h * rng.uniform(0.45, 0.65))
     fx = (w - face_w) // 2
     fy = (h - face_h) // 2
     draw.ellipse([fx, fy, fx + face_w, fy + face_h], fill=col_a)
-
-    # Eye-like circles — perfectly symmetric
     eye_y = fy + int(face_h * 0.35)
     eye_r = int(face_w * 0.08)
-    left_x  = fx + int(face_w * 0.3)
+    left_x = fx + int(face_w * 0.3)
     right_x = fx + int(face_w * 0.7)
     dark = (col_a[0] // 3, col_a[1] // 3, col_a[2] // 3)
     draw.ellipse([left_x - eye_r, eye_y - eye_r, left_x + eye_r, eye_y + eye_r], fill=dark)
     draw.ellipse([right_x - eye_r, eye_y - eye_r, right_x + eye_r, eye_y + eye_r], fill=dark)
-
     img = img.filter(ImageFilter.GaussianBlur(radius=rng.uniform(2, 5)))
     img = ImageEnhance.Color(img).enhance(rng.uniform(0.8, 1.3))
     return img
 
 
-_GENERATORS = [
+_GENERATORS_PROC = [
     _make_smooth_gradient,
     _make_mandala,
     _make_dreamscape,
@@ -202,14 +312,12 @@ _GENERATORS = [
 
 def get_ai_image(rng: random.Random) -> tuple[Image.Image, str]:
     """
-    Return (image, source_tag).
-    source_tag is 'disk' if loaded from AI_DIR, otherwise 'synthetic_*'.
+    Return (image, source_tag). Legacy API — no caption.
     """
     img = load_ai_image_from_disk(rng)
     if img is not None:
         return img, "disk"
-
-    gen = rng.choice(_GENERATORS)
+    gen = rng.choice(_GENERATORS_PROC)
     img = gen(OUTPUT_SIZE, rng)
     return img, f"synthetic_{gen.__name__}"
 

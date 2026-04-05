@@ -42,8 +42,19 @@ fi
 # Generators: Stable Diffusion 3, SDXL, SD 2.1, DALL-E 3, Midjourney v6
 echo "[2/3] MS COCOAI (Defactify 2025) — ~48K AI images (HuggingFace, no login)..."
 python3 - <<'PYEOF'
+import importlib
+import shutil
 import sys
 from pathlib import Path
+
+
+def import_hf_load_dataset():
+    project_root = Path.cwd().resolve()
+    sys.path = [
+        entry for entry in sys.path
+        if Path(entry or ".").resolve() != project_root
+    ]
+    return importlib.import_module("datasets").load_dataset
 
 out_dir = Path("data/ai/ms_cocoai")
 done    = out_dir / ".done"
@@ -54,26 +65,52 @@ if done.exists():
     sys.exit(0)
 
 try:
-    from datasets import load_dataset
+    load_dataset = import_hf_load_dataset()
 
     print("    Loading Rajarshi-Roy-research/Defactify_Image_Dataset ...")
-    ds = load_dataset(
-        "Rajarshi-Roy-research/Defactify_Image_Dataset",
-        split="train",
-        streaming=True,
-    )
+
+    def extract_label(sample):
+        if "Label_A" in sample:
+            return int(sample["Label_A"])
+        if "label" in sample:
+            value = sample["label"]
+            if isinstance(value, str):
+                return 0 if value.lower() == "real" else 1
+            return int(value)
+        return 0
+
+    def extract_image(sample):
+        for key in ("Image", "image"):
+            image = sample.get(key)
+            if image is not None:
+                return image
+        return None
 
     saved = 0
-    for i, sample in enumerate(ds):
-        # Keep only AI-generated images (label != "real")
-        label = str(sample.get("label", "")).lower()
-        if label == "real" or label == "0":
-            continue
-        img = sample["image"].convert("RGB")
-        img.save(out_dir / f"cocoai_{saved:05d}.png")
-        saved += 1
-        if saved % 5000 == 0:
-            print(f"    Saved {saved} MS COCOAI images...")
+    for split in ("train", "validation", "test"):
+        print(f"    Processing split: {split}")
+        ds = load_dataset(
+            "Rajarshi-Roy-research/Defactify_Image_Dataset",
+            split=split,
+        )
+
+        for sample in ds:
+            if extract_label(sample) == 0:
+                continue
+
+            img = extract_image(sample)
+            if img is None:
+                continue
+
+            img.convert("RGB").save(out_dir / f"cocoai_{saved:05d}.png")
+            saved += 1
+            if saved % 5000 == 0:
+                print(f"    Saved {saved} MS COCOAI images...")
+            if saved >= 48000:
+                break
+
+        del ds
+        shutil.rmtree(Path.home() / ".cache" / "huggingface" / "datasets" / "downloads" / "extracted", ignore_errors=True)
         if saved >= 48000:
             break
 
@@ -89,8 +126,18 @@ PYEOF
 # 10 000 Stable Diffusion images at native 512×512 PNG.
 echo "[3/3] DiffusionDB — 10K images @ 512×512 (HuggingFace)..."
 python3 - <<'PYEOF'
+import importlib
 import sys
 from pathlib import Path
+
+
+def import_hf_load_dataset():
+    project_root = Path.cwd().resolve()
+    sys.path = [
+        entry for entry in sys.path
+        if Path(entry or ".").resolve() != project_root
+    ]
+    return importlib.import_module("datasets").load_dataset
 
 out_dir = Path("data/ai/diffusiondb_10k")
 done    = out_dir / ".done"
@@ -101,7 +148,7 @@ if done.exists():
     sys.exit(0)
 
 try:
-    from datasets import load_dataset
+    load_dataset = import_hf_load_dataset()
 
     print("    Loading poloclub/diffusiondb large_random_10k ...")
     ds = load_dataset("poloclub/diffusiondb", "large_random_10k", split="train")

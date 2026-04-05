@@ -1,0 +1,12 @@
+{
+  "sample_id": "KAI_016",
+  "editor": "Kai",
+  "edit_family": "AI_Real_synth",
+  "pie_type": null,
+  "ai_image_description": "roman tiled mosaic floor in the museum, in the style of goosepunk, nature-based patterns, nature motifs, natural fibers, the bechers' typologies, light red and bronze, grocery art, lively tableaus, crisp detailing",
+  "real_image_dataset": "movie_poster",
+  "ai_image_dataset": "glide",
+  "blended_words": [],
+  "tool_name": "AI_detection_synthData",
+  "resolution": "512x512"
+}

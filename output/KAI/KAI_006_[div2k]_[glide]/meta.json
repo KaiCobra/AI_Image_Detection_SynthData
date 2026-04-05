@@ -1,0 +1,12 @@
+{
+  "sample_id": "KAI_006",
+  "editor": "Kai",
+  "edit_family": "AI_Real_synth",
+  "pie_type": null,
+  "ai_image_description": "large red flowers with yellow cores, in the style of 35mm lens, vibrant coloration, rounded",
+  "real_image_dataset": "div2k",
+  "ai_image_dataset": "glide",
+  "blended_words": [],
+  "tool_name": "AI_detection_synthData",
+  "resolution": "512x512"
+}

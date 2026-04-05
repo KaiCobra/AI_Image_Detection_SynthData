@@ -7,8 +7,8 @@ REAL image datasets (publicly licensed, free to use):
 
   1. DIV2K  — Open access, no registration
        https://data.vision.ee.ethz.ch/cvl/DIV2K/
-       1 000 high-resolution photos (≥ 2K on one side), extremely clean and sharp
-       HuggingFace: datasets.load_dataset("eugenesiow/Div2k", "bicubic_x2", split="train")
+       900 high-resolution photos (train + validation HR), extremely clean and sharp
+       Direct: DIV2K_train_HR.zip + DIV2K_valid_HR.zip
 
   2. COCO 2017 val  — CC BY 4.0
        https://cocodataset.org/#download
@@ -23,7 +23,12 @@ REAL image datasets (publicly licensed, free to use):
   4. Google Quick, Draw!  — CC BY 4.0
        https://github.com/googlecreativelab/quickdraw-dataset
        50 M human sketches / doodles (28×28 bitmap .npy files per category)
-       pip: pip install quickdraw
+       Direct: https://storage.googleapis.com/quickdraw_dataset/full/numpy_bitmap/
+
+  5. Movie-Poster  — research dataset for artistic-style text detection
+       https://github.com/AXNing/Artistic-style-text-detection
+       1 500 movie posters with artistic-style titles
+       Google Drive: https://drive.google.com/file/d/1anlWPsCX-6aYhUDqC33SXRufcpPpjLE2/view
 
 AI-GENERATED image datasets (publicly licensed / research use):
 

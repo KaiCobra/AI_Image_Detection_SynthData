@@ -23,10 +23,11 @@ Each **batch** in the dataset contains two files:
 
 | Dataset | License | Type | Count | Disk | Access |
 |---|---|---|---|---|---|
-| **DIV2K** | Open access | 高畫質真實照片 (≥ 2K) | 1 000 | ~1 GB | HuggingFace (no login) |
+| **DIV2K** | Open access | 高畫質真實照片 (≥ 2K) | 900 | ~1 GB | direct wget |
 | **COCO 2017 val** | CC BY 4.0 | 自然場景照片 | 5 000 | ~1 GB | direct wget |
 | **Open Images V7** | CC BY 4.0 | 多樣真實照片 | 41 K (val) | ~1.2 GB | `gsutil` |
-| **Quick, Draw!** | CC BY 4.0 | 真人手繪素描 | 50 M (use subsets) | per-category .npy | `pip install quickdraw` |
+| **Quick, Draw!** | CC BY 4.0 | 真人手繪素描 | 50 M (use subsets) | per-category .npy | direct wget |
+| **Movie-Poster** | research dataset | 電影海報 + 藝術字文字 | 1 500 | moderate | Google Drive |
 
 ### AI-generated images (Set B)
 
@@ -39,7 +40,7 @@ Each **batch** in the dataset contains two files:
 | **GenImage** | 2023 | CC BY-NC-SA 4.0 | MJ, SD, DALL-E 2… | 2.68 M | ~500 GB | download script (optional) |
 
 > **Recommended starter** (no registration, < 8 GB, modern generators):
-> real = DIV2K + COCO val + Quick Draw;
+> real = DIV2K + COCO val + Quick Draw + Movie-Poster;
 > AI = **Synthbuster** (DALL-E 3 / Firefly / MJ v5) + **MS COCOAI** (SD 3 / MJ v6) + DiffusionDB 10K
 
 ---
@@ -53,26 +54,31 @@ bash download_datasets.sh
 ```
 
 > 這一行會自動安裝所需套件，並依序下載：
-> DIV2K、COCO 2017 val、Quick Draw! 素描（真實圖片）
+> DIV2K、COCO 2017 val、Quick Draw! 素描、Movie-Poster 海報（真實圖片）
 > + Synthbuster、MS COCOAI、DiffusionDB 10K（AI 生成圖片）
 
 ### 2. Install dependencies only
 
 ```bash
-pip install Pillow numpy datasets huggingface_hub tqdm quickdraw
+pip install Pillow numpy datasets huggingface_hub tqdm gdown
 ```
 
 ### 3. (Optional) Download real/AI datasets separately
 
 ```bash
-bash scripts/download_real_datasets.sh   # DIV2K + COCO val + Quick Draw
+bash scripts/download_real_datasets.sh   # DIV2K + COCO val + Quick Draw + Movie-Poster
 bash scripts/download_ai_datasets.sh     # Synthbuster + MS COCOAI + DiffusionDB
+bash scripts/download_movie_poster_dataset.sh
 ```
 
 > **Without downloaded data** the pipeline falls back to procedurally generated
 > images (noise-based nature textures / sketch-like drawings for real;
 > gradient dreamscapes / mandala / portrait-like patterns for AI).
 > The 5 demo batches in `output/demo/` were produced this way.
+
+> Disk-loaded images now keep their original aspect ratio with blurred padding,
+> and the loader skips common annotation folders such as `gt/` and `mask/`.
+> This matters for `Movie-Poster`, so poster text is not stretched and labels do not leak into training data.
 
 ### 4. Generate batches
 
@@ -107,6 +113,7 @@ python scripts/visualize_batch.py output/demo/batch_0000
 ├── scripts/
 │   ├── download_real_datasets.sh
 │   ├── download_ai_datasets.sh
+│   ├── download_movie_poster_dataset.sh
 │   ├── quickdraw_to_png.py     # Convert Quick Draw .npy → PNG
 │   └── visualize_batch.py      # 3-panel visualization
 ├── data/

@@ -1,0 +1,12 @@
+{
+  "sample_id": "KAI_011",
+  "editor": "Kai",
+  "edit_family": "AI_Real_synth",
+  "pie_type": null,
+  "ai_image_description": "this view is of a lake, in the style of viennese actionism, himalayan vistas, dotted, light sky-blue and light yellow, canon 50mm f/0.95, topographical views, geodesic structures",
+  "real_image_dataset": "coco",
+  "ai_image_dataset": "dalle3",
+  "blended_words": [],
+  "tool_name": "AI_detection_synthData",
+  "resolution": "512x512"
+}

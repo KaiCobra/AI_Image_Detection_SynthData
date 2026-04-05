@@ -1,0 +1,12 @@
+{
+  "sample_id": "KAI_008",
+  "editor": "Kai",
+  "edit_family": "AI_Real_synth",
+  "pie_type": null,
+  "ai_image_description": "this statue was created as a gift for a steward,, in the style of made of insects, realistic blue skies, dark green, thin steel forms, macro perspectives, elongated figures",
+  "real_image_dataset": "div2k",
+  "ai_image_dataset": "firefly",
+  "blended_words": [],
+  "tool_name": "AI_detection_synthData",
+  "resolution": "512x512"
+}

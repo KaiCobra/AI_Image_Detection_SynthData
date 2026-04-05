@@ -1,0 +1,12 @@
+{
+  "sample_id": "KAI_020",
+  "editor": "Kai",
+  "edit_family": "AI_Real_synth",
+  "pie_type": null,
+  "ai_image_description": "the scenery is green, in the style of wollensak 127mm f/4.7 ektar, topographical views, opacity and translucency, iso 200, mountainous vistas, matte photo, camera noise",
+  "real_image_dataset": "div2k",
+  "ai_image_dataset": "midjourney-v5",
+  "blended_words": [],
+  "tool_name": "AI_detection_synthData",
+  "resolution": "512x512"
+}

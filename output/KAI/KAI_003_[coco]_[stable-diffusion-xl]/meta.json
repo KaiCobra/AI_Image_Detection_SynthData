@@ -1,0 +1,12 @@
+{
+  "sample_id": "KAI_003",
+  "editor": "Kai",
+  "edit_family": "AI_Real_synth",
+  "pie_type": null,
+  "ai_image_description": "wooden window on a rustic stone wall, in the style of detailed drapery, xmaspunk, reflections and mirroring, swiss style, primitive figurines, cabincore",
+  "real_image_dataset": "coco",
+  "ai_image_dataset": "stable-diffusion-xl",
+  "blended_words": [],
+  "tool_name": "AI_detection_synthData",
+  "resolution": "512x512"
+}

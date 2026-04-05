@@ -1,0 +1,12 @@
+{
+  "sample_id": "KAI_015",
+  "editor": "Kai",
+  "edit_family": "AI_Real_synth",
+  "pie_type": null,
+  "ai_image_description": "two wooden rowboats with flowers and two elderly people on them in a lush swamp canal next to a duck and lush grass and swamp trees on the canal banks, in the style of saint-omer, colorful gardens, romantic sensibility, swampcore, duckcore, elaborate, orderly arrangements, romantic gestures, floating structures, serene and tranquil scenes",
+  "real_image_dataset": "div2k",
+  "ai_image_dataset": "glide",
+  "blended_words": [],
+  "tool_name": "AI_detection_synthData",
+  "resolution": "512x512"
+}

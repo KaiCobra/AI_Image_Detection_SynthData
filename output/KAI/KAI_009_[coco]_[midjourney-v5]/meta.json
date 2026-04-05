@@ -1,0 +1,12 @@
+{
+  "sample_id": "KAI_009",
+  "editor": "Kai",
+  "edit_family": "AI_Real_synth",
+  "pie_type": null,
+  "ai_image_description": "clouds are covering a body of water, in the style of snow scenes, light gray and green, sunrays shine upon it, whistlerian, shaky camera work, high-key lighting, webcam photography",
+  "real_image_dataset": "coco",
+  "ai_image_dataset": "midjourney-v5",
+  "blended_words": [],
+  "tool_name": "AI_detection_synthData",
+  "resolution": "512x512"
+}

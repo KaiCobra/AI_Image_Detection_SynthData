@@ -3,10 +3,11 @@
 # Download REAL image datasets into data/real/
 # Run from the project root directory.
 #
-# Default downloads (~2 GB, no registration needed):
+# Default downloads (~3 GB, no registration needed):
 #   DIV2K        — 1 000 高畫質真實照片 (≥ 2K 解析度)
 #   COCO 2017 val — 5 000 自然場景照片 (~1 GB)
 #   Quick Draw!  — 10 類別 × 2 000 真人手繪素描
+#   Movie-Poster — 1 500 張海報圖，含藝術字標題
 # ============================================================
 set -euo pipefail
 
@@ -15,48 +16,35 @@ mkdir -p "$REAL_DIR"
 
 echo "=== Downloading Real Image Datasets ==="
 
-# ── 1. DIV2K (HuggingFace, open access, no login) ────────────────────────────
-# 1 000 high-resolution real photos, at least one dimension ≥ 2K.
+# ── 1. DIV2K (official download, open access, no login) ─────────────────────
+# 900 high-resolution real photos, at least one dimension ≥ 2K.
 # Diverse subjects: people, objects, nature, architecture, macro.
 # No AI involvement — original photographs.
-echo "[1/3] DIV2K — 1 000 high-resolution real photos (HuggingFace)..."
-python3 - <<'PYEOF'
-import sys
-from pathlib import Path
+echo "[1/4] DIV2K — 900 high-resolution real photos (official download)..."
+mkdir -p "$REAL_DIR/div2k"
+if [ ! -f "$REAL_DIR/div2k/.done" ]; then
+    if [ ! -f /tmp/DIV2K_train_HR.zip ]; then
+        wget -q --show-progress \
+            "https://data.vision.ee.ethz.ch/cvl/DIV2K/DIV2K_train_HR.zip" \
+            -O /tmp/DIV2K_train_HR.zip
+    fi
+    if [ ! -f /tmp/DIV2K_valid_HR.zip ]; then
+        wget -q --show-progress \
+            "https://data.vision.ee.ethz.ch/cvl/DIV2K/DIV2K_valid_HR.zip" \
+            -O /tmp/DIV2K_valid_HR.zip
+    fi
 
-out_dir = Path("data/real/div2k")
-done    = out_dir / ".done"
-out_dir.mkdir(parents=True, exist_ok=True)
-
-if done.exists():
-    print("    DIV2K already downloaded.")
-    sys.exit(0)
-
-try:
-    from datasets import load_dataset
-
-    print("    Loading eugenesiow/Div2k (bicubic_x2 config, train split) ...")
-    ds = load_dataset("eugenesiow/Div2k", "bicubic_x2", split="train")
-
-    saved = 0
-    for i, sample in enumerate(ds):
-        # Use the high-resolution version (hr key)
-        img = sample.get("hr") or sample.get("image")
-        if img is None:
-            continue
-        img.convert("RGB").save(out_dir / f"div2k_{i:04d}.png")
-        saved += 1
-
-    done.touch()
-    print(f"    DIV2K done: {saved} images in {out_dir}")
-
-except Exception as e:
-    print(f"    [ERROR] {e}")
-    print("    Alternative: download directly from https://data.vision.ee.ethz.ch/cvl/DIV2K/")
-PYEOF
+    unzip -oq /tmp/DIV2K_train_HR.zip -d "$REAL_DIR/div2k/"
+    unzip -oq /tmp/DIV2K_valid_HR.zip -d "$REAL_DIR/div2k/"
+    rm -f /tmp/DIV2K_train_HR.zip /tmp/DIV2K_valid_HR.zip
+    touch "$REAL_DIR/div2k/.done"
+    echo "    DIV2K done."
+else
+    echo "    DIV2K already downloaded."
+fi
 
 # ── 2. COCO 2017 Validation (~1 GB, CC BY 4.0) ──────────────────────────────
-echo "[2/3] COCO 2017 val (5 000 natural scene images)..."
+echo "[2/4] COCO 2017 val (5 000 natural scene images)..."
 mkdir -p "$REAL_DIR/coco"
 if [ ! -f "$REAL_DIR/coco/.done" ]; then
     wget -q --show-progress \
@@ -74,45 +62,35 @@ fi
 
 # ── 3. Quick, Draw! bitmap sketches (CC BY 4.0) ──────────────────────────────
 # 10 categories × up to 2 000 sketches each.
-# Requires: pip install quickdraw
-echo "[3/3] Quick Draw! human sketches (10 categories)..."
-python3 - <<'PYEOF'
-import sys
-from pathlib import Path
+echo "[3/4] Quick Draw! human sketches (10 categories)..."
+QUICKDRAW_RAW_DIR="$REAL_DIR/quickdraw"
+QUICKDRAW_PNG_DIR="$REAL_DIR/quickdraw_png"
+if [ ! -f "$QUICKDRAW_PNG_DIR/.done" ]; then
+    mkdir -p "$QUICKDRAW_RAW_DIR"
+    CATEGORIES=(cat dog house tree bicycle car fish bird flower sun)
+    for category in "${CATEGORIES[@]}"; do
+        if [ ! -f "$QUICKDRAW_RAW_DIR/${category}.npy" ]; then
+            wget -q --show-progress \
+                "https://storage.googleapis.com/quickdraw_dataset/full/numpy_bitmap/${category}.npy" \
+                -O "$QUICKDRAW_RAW_DIR/${category}.npy"
+        fi
+    done
 
-out_dir = Path("data/real/quickdraw_png")
-done = out_dir / ".done"
-if done.exists():
-    print("    Quick Draw already downloaded.")
-    sys.exit(0)
+    python3 scripts/quickdraw_to_png.py \
+        --npy_dir "$QUICKDRAW_RAW_DIR" \
+        --out_dir "$QUICKDRAW_PNG_DIR" \
+        --max_per_category 2000 \
+        --image_size 256
 
-CATEGORIES = [
-    "cat", "dog", "house", "tree", "bicycle",
-    "car", "fish", "bird", "flower", "sun",
-]
-MAX_PER = 2000
+    touch "$QUICKDRAW_PNG_DIR/.done"
+    echo "    Quick Draw done."
+else
+    echo "    Quick Draw already downloaded."
+fi
 
-try:
-    from quickdraw import QuickDrawData
-    qd = QuickDrawData(recognized=True)
-
-    total = 0
-    for cat in CATEGORIES:
-        cat_dir = out_dir / cat
-        cat_dir.mkdir(parents=True, exist_ok=True)
-        drawings = qd.get_drawings(cat, count=MAX_PER)
-        for i, drawing in enumerate(drawings):
-            img = drawing.get_image(stroke_width=2).resize((256, 256))
-            img.save(cat_dir / f"{cat}_{i:05d}.png")
-            total += 1
-        print(f"    {cat}: {i+1} images saved.")
-
-    done.touch()
-    print(f"    Quick Draw done: {total} total sketches.")
-
-except ImportError:
-    print("    [SKIP] pip install quickdraw  then re-run this script.")
-PYEOF
+# ── 4. Movie-Poster artistic text dataset (Google Drive) ───────────────────
+echo "[4/4] Movie-Poster — 1 500 poster images with artistic text..."
+bash scripts/download_movie_poster_dataset.sh
 
 echo ""
 echo "=== Real dataset download complete ==="

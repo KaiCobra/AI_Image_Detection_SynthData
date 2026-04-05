@@ -1,0 +1,12 @@
+{
+  "sample_id": "KAI_018",
+  "editor": "Kai",
+  "edit_family": "AI_Real_synth",
+  "pie_type": null,
+  "ai_image_description": "a tall building with large vertical banners and ornate windows, in the style of 19th century french academy, large-scale portraits, feminine affluence, les nabis, dark white and dark beige, eclectic curatorial style, rubens, large grey building at the louvre, en plein air, dark gray, eclectic curatorial style",
+  "real_image_dataset": "coco",
+  "ai_image_dataset": "midjourney-v5",
+  "blended_words": [],
+  "tool_name": "AI_detection_synthData",
+  "resolution": "512x512"
+}

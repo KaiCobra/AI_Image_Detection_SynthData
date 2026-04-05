@@ -1,0 +1,12 @@
+{
+  "sample_id": "KAI_004",
+  "editor": "Kai",
+  "edit_family": "AI_Real_synth",
+  "pie_type": null,
+  "ai_image_description": "this statue portrays a man on a horse surrounded by trees, in the style of noble figures, dark green and orange, fujifilm velvia, germanic art",
+  "real_image_dataset": "coco",
+  "ai_image_dataset": "dalle2",
+  "blended_words": [],
+  "tool_name": "AI_detection_synthData",
+  "resolution": "512x512"
+}

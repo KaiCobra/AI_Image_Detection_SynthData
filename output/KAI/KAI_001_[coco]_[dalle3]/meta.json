@@ -1,0 +1,12 @@
+{
+  "sample_id": "KAI_001",
+  "editor": "Kai",
+  "edit_family": "AI_Real_synth",
+  "pie_type": null,
+  "ai_image_description": "branches of trees that surround a lake, in the style of romantic soft focus and ethereal light, italian landscapes, flickr, carl zeiss distagon t* 15mm f/2.8 ze, silhouette lighting, swiss style, playing with light and shadow",
+  "real_image_dataset": "coco",
+  "ai_image_dataset": "dalle3",
+  "blended_words": [],
+  "tool_name": "AI_detection_synthData",
+  "resolution": "512x512"
+}

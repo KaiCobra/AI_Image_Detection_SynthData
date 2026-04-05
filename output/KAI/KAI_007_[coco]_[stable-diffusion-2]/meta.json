@@ -1,0 +1,12 @@
+{
+  "sample_id": "KAI_007",
+  "editor": "Kai",
+  "edit_family": "AI_Real_synth",
+  "pie_type": null,
+  "ai_image_description": "a fly perched on the leaf of a flower, in the style of spiky mounds, overexposure, bokeh, whistlerian, striped arrangements, soft light, prairiecore, rough clusters",
+  "real_image_dataset": "coco",
+  "ai_image_dataset": "stable-diffusion-2",
+  "blended_words": [],
+  "tool_name": "AI_detection_synthData",
+  "resolution": "512x512"
+}

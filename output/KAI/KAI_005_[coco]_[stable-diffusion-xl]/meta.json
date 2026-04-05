@@ -1,0 +1,12 @@
+{
+  "sample_id": "KAI_005",
+  "editor": "Kai",
+  "edit_family": "AI_Real_synth",
+  "pie_type": null,
+  "ai_image_description": "a group of rocks covered with grass, in the style of peruvian landscapes, polished concrete, mountainous vistas, cabincore, grandeur of scale, anamorphic lens, beige and aquamarine",
+  "real_image_dataset": "coco",
+  "ai_image_dataset": "stable-diffusion-xl",
+  "blended_words": [],
+  "tool_name": "AI_detection_synthData",
+  "resolution": "512x512"
+}

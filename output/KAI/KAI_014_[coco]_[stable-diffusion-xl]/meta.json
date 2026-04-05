@@ -1,0 +1,12 @@
+{
+  "sample_id": "KAI_014",
+  "editor": "Kai",
+  "edit_family": "AI_Real_synth",
+  "pie_type": null,
+  "ai_image_description": "a green finnish lake between trees and rocks near a rocky shore reflecting the unseen mountains of the background, in the style of light emerald and dark aquamarine, observational photography, kitsch and camp charm, delicate washes, finnish nature scenes, finnish landscapes, colorful imagery, intensely detailed, ephemeral, whimsical wilderness, naturecore, lakecore, forestcore",
+  "real_image_dataset": "coco",
+  "ai_image_dataset": "stable-diffusion-xl",
+  "blended_words": [],
+  "tool_name": "AI_detection_synthData",
+  "resolution": "512x512"
+}

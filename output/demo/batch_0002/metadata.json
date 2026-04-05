@@ -1,20 +1,28 @@
 {
-  "ai_is_base": true,
+  "mode": "fullimage_overlay",
+  "ai_source": "synthbuster/dalle2",
+  "ai_filename": "r0bdc7894t",
+  "ai_caption": "a fly perched on the leaf of a flower, in the style of spiky mounds, overexposure, bokeh, whistlerian, striped arrangements, soft light, prairiecore, rough clusters",
+  "ai_object": "fly",
+  "sam3_score": null,
+  "sam3_bbox": null,
+  "real_source": "disk",
+  "overlay_position": [
+    279,
+    214
+  ],
+  "overlay_size": [
+    184,
+    184
+  ],
   "ai_bbox": [
-    0,
-    0,
-    511,
-    511
+    279,
+    214,
+    463,
+    398
   ],
-  "alpha": 0.8259,
-  "patch_xy": [
-    286,
-    314
-  ],
-  "patch_size": [
-    182,
-    182
-  ],
-  "real_source": "synthetic_sketch",
-  "ai_source": "synthetic__make_portrait_like"
+  "canvas_size": [
+    512,
+    512
+  ]
 }
